@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Graduation Countdown</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --purple-l: #AFA9EC;
+    --purple-m: #7F77DD;
+    --purple-d: #534AB7;
+    --coral-l:  #F0997B;
+    --coral-m:  #D85A30;
+    --coral-d:  #993C1D;
+    --teal-l:   #5DCAA5;
+    --teal-m:   #1D9E75;
+    --teal-d:   #0F6E56;
+    --amber-m:  #EF9F27;
+    --bg:       #0a0a0f;
+    --surface:  #13131a;
+    --surface2: #1c1c27;
+    --border:   rgba(255,255,255,0.07);
+    --text:     #f0efff;
+    --muted:    rgba(240,239,255,0.5);
+    --faint:    rgba(240,239,255,0.25);
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── background mesh ── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0; z-index: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 15% 20%, rgba(127,119,221,0.18) 0%, transparent 70%),
+      radial-gradient(ellipse 50% 60% at 85% 75%, rgba(29,158,117,0.14) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 40% at 60% 10%, rgba(216,90,48,0.10) 0%, transparent 65%);
+    pointer-events: none;
+  }
+
+  .page { position: relative; z-index: 1; max-width: 900px; margin: 0 auto; padding: 3rem 1.5rem 5rem; }
+
+  /* ── header ── */
+  header { text-align: center; margin-bottom: 3.5rem; }
+  .eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.1s forwards;
+  }
+  header h1 {
+    font-size: clamp(2.4rem, 6vw, 4rem);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    background: linear-gradient(135deg, #fff 20%, var(--purple-l) 55%, var(--teal-l) 90%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.2s forwards;
+  }
+  .subtitle {
+    margin-top: 0.75rem;
+    font-size: 15px;
+    color: var(--muted);
+    font-weight: 400;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.35s forwards;
+  }
+  #live-date {
+    display: inline-block;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--faint);
+    margin-top: 0.5rem;
+  }
+
+  /* ── school days hero ── */
+  .hero {
+    position: relative;
+    border-radius: 20px;
+    padding: 3rem 2rem;
+    text-align: center;
+    margin-bottom: 2rem;
+    overflow: hidden;
+    background: linear-gradient(135deg, #2a2660 0%, #1a3d2b 55%, #3d1f10 100%);
+    border: 1px solid rgba(255,255,255,0.08);
+    opacity: 0;
+    animation: fadeUp 0.7s 0.5s forwards;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(127,119,221,0.3) 0%, rgba(29,158,117,0.2) 50%, rgba(216,90,48,0.25) 100%);
+  }
+  .hero-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(40px);
+    pointer-events: none;
+  }
+  .orb1 { width: 200px; height: 200px; background: rgba(127,119,221,0.35); top: -60px; left: -40px; }
+  .orb2 { width: 160px; height: 160px; background: rgba(29,158,117,0.3); bottom: -40px; right: -20px; }
+  .orb3 { width: 120px; height: 120px; background: rgba(239,159,39,0.2); top: 20px; right: 30%; }
+
+  .hero-inner { position: relative; z-index: 1; }
+  .hero-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.6);
+    margin-bottom: 1rem;
+  }
+  .hero-number {
+    font-size: clamp(5rem, 18vw, 9rem);
+    font-weight: 800;
+    line-height: 0.9;
+    letter-spacing: 0.15em;
+    font-variant-numeric: tabular-nums;
+    color: #fff;
+    text-align: center;
+  }
+  .hero-unit {
+    font-size: 1.3rem;
+    font-weight: 500;
+    color: rgba(255,255,255,0.65);
+    margin-top: 0.5rem;
+    letter-spacing: 0.05em;
+  }
+  .hero-sub {
+    margin-top: 1rem;
+    font-size: 13px;
+    font-family: 'DM Mono', monospace;
+    color: rgba(255,255,255,0.4);
+  }
+
+  /* ── event cards grid ── */
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 14px;
+  }
+
+  .card {
+    border-radius: 16px;
+    padding: 1.5rem;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.08);
+    opacity: 0;
+    animation: fadeUp 0.6s forwards;
+  }
+  .card:nth-child(1) { animation-delay: 0.65s; background: linear-gradient(140deg, #1d1a4a 0%, #2a2660 100%); }
+  .card:nth-child(2) { animation-delay: 0.75s; background: linear-gradient(140deg, #3d1f10 0%, #6b2a10 100%); }
+  .card:nth-child(3) { animation-delay: 0.85s; background: linear-gradient(140deg, #0b2e22 0%, #174d38 100%); }
+
+  .card-glow {
+    position: absolute;
+    width: 120px; height: 120px;
+    border-radius: 50%;
+    top: -30px; right: -30px;
+    filter: blur(30px);
+    pointer-events: none;
+  }
+  .card:nth-child(1) .card-glow { background: rgba(127,119,221,0.5); }
+  .card:nth-child(2) .card-glow { background: rgba(216,90,48,0.5); }
+  .card:nth-child(3) .card-glow { background: rgba(29,158,117,0.5); }
+
+  .card-inner { position: relative; z-index: 1; }
+
+  .card-tag {
+    display: inline-block;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 99px;
+    margin-bottom: 0.75rem;
+  }
+  .card:nth-child(1) .card-tag { background: rgba(127,119,221,0.3); color: var(--purple-l); }
+  .card:nth-child(2) .card-tag { background: rgba(216,90,48,0.3);  color: var(--coral-l); }
+  .card:nth-child(3) .card-tag { background: rgba(29,158,117,0.3); color: var(--teal-l); }
+
+  .card-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 2px;
+  }
+  .card-date {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: rgba(255,255,255,0.4);
+    margin-bottom: 1.25rem;
+  }
+
+  /* ── timer ── */
+  .timer-row {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 6px;
+    margin-bottom: 6px;
+  }
+  .t-block { text-align: center; }
+  .t-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 1.55rem;
+    font-weight: 500;
+    color: #fff;
+    display: block;
+    line-height: 1;
+  }
+  .t-unit {
+    font-family: 'DM Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.35);
+    display: block;
+    margin-top: 4px;
+  }
+
+  .d-badge {
+    display: inline-block;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: rgba(255,255,255,0.5);
+    margin-bottom: 0.5rem;
+  }
+
+  .done-pill {
+    display: inline-block;
+    font-size: 14px;
+    font-weight: 600;
+    background: rgba(255,255,255,0.12);
+    color: #fff;
+    padding: 8px 18px;
+    border-radius: 99px;
+  }
+
+  /* ── divider ── */
+  .section-divider {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 2rem 0 1.5rem;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.6s forwards;
+  }
+  .section-divider span {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--faint);
+    white-space: nowrap;
+  }
+  .section-divider::before,
+  .section-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* ── footer ── */
+  footer {
+    text-align: center;
+    margin-top: 3rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--faint);
+    opacity: 0;
+    animation: fadeUp 0.5s 1s forwards;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <header>
+    <p class="eyebrow">Class of 2026 ✦ Final Stretch</p>
+    <h1>Almost There.</h1>
+    <p class="subtitle">Every second is one step closer to freedom.</p>
+    <span id="live-date"></span>
+  </header>
+
+  <!-- school days hero -->
+  <div class="hero">
+    <div class="hero-orb orb1"></div>
+    <div class="hero-orb orb2"></div>
+    <div class="hero-orb orb3"></div>
+    <div class="hero-inner">
+      <p class="hero-label">🏫 School days remaining</p>
+      <div class="hero-number" id="school-num"></div>
+      <p class="hero-unit">days left</p>
+      <p class="hero-sub">Based on May 30, 2026 — counting down daily</p>
+    </div>
+  </div>
+
+  <div class="section-divider"><span>Upcoming milestones</span></div>
+
+  <!-- event cards -->
+  <div class="cards">
+
+    <div class="card">
+      <div class="card-glow"></div>
+      <div class="card-inner">
+        <span class="card-tag">Graduation</span>
+        <div class="card-title">Graduation Ceremony</div>
+        <div class="card-date" id="dbadge-grad"></div>
+        <div id="timer-grad"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-glow"></div>
+      <div class="card-inner">
+        <span class="card-tag">Trip</span>
+        <div class="card-title">Graduation Trip</div>
+        <div class="card-date" id="dbadge-trip"></div>
+        <div id="timer-trip"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-glow"></div>
+      <div class="card-inner">
+        <span class="card-tag">Last Day</span>
+        <div class="card-title">Last Day of School</div>
+        <div class="card-date" id="dbadge-last"></div>
+        <div id="timer-last"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>Made with countdown energy ✦ Class of 2026</footer>
+
+</div>
+
+<script>
+const SCHOOL_DATES = [
+  '2026-06-01','2026-06-02','2026-06-03','2026-06-04',
+  '2026-06-08','2026-06-09','2026-06-10','2026-06-11','2026-06-12',
+  '2026-06-15','2026-06-16','2026-06-17','2026-06-18','2026-06-19',
+  '2026-06-22','2026-06-23','2026-06-24','2026-06-25',
+];
+
+const events = [
+  { id: 'grad', label: 'June 15, 2026', target: new Date(2026, 5, 15, 0, 0, 0, 0) },
+  { id: 'trip', label: 'June 22, 2026', target: new Date(2026, 5, 22, 0, 0, 0, 0) },
+  { id: 'last', label: 'June 25, 2026', target: new Date(2026, 5, 25, 0, 0, 0, 0) },
+];
+
+function pad2(n) { return String(Math.floor(Math.abs(n))).padStart(2, '0'); }
+
+function schoolDaysLeft() {
+  const now = new Date();
+  const todayStr = now.toISOString().slice(0, 10);
+  return SCHOOL_DATES.filter(d => d >= todayStr).length;
+}
+
+function buildTimer(ms) {
+  if (ms <= 0) return '<span class="done-pill">🎉 It\'s here!</span>';
+  const d  = Math.floor(ms / 86400000);
+  const h  = Math.floor((ms % 86400000) / 3600000);
+  const m  = Math.floor((ms % 3600000) / 60000);
+  const s  = Math.floor((ms % 60000) / 1000);
+  const ms2 = Math.floor(ms % 1000);
+  return `<div class="timer-row">
+    <div class="t-block"><span class="t-num">${pad2(d)}</span><span class="t-unit">days</span></div>
+    <div class="t-block"><span class="t-num">${pad2(h)}</span><span class="t-unit">hrs</span></div>
+    <div class="t-block"><span class="t-num">${pad2(m)}</span><span class="t-unit">min</span></div>
+    <div class="t-block"><span class="t-num">${pad2(s)}</span><span class="t-unit">sec</span></div>
+    <div class="t-block"><span class="t-num">${pad2(ms2/10)}</span><span class="t-unit">ms</span></div>
+  </div>`;
+}
+
+function dBadge(ms) {
+  if (ms <= 0) return 'passed';
+  return 'D-' + Math.ceil(ms / 86400000);
+}
+
+function tick() {
+  const now = new Date();
+
+  document.getElementById('live-date').textContent =
+    now.toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+
+  document.getElementById('school-num').textContent = schoolDaysLeft();
+
+  events.forEach(e => {
+    const ms = e.target - now;
+    document.getElementById('timer-' + e.id).innerHTML = buildTimer(ms);
+    document.getElementById('dbadge-' + e.id).textContent = e.label + '  ·  ' + dBadge(ms);
+  });
+}
+
+tick();
+setInterval(tick, 50);
+</script>
+</body>
+</html>
